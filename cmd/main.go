@@ -1,15 +1,37 @@
 package main
 
-import "github.com/unkownblunders/bugs"
+import (
+	"os"
 
-func main() {
+	"github.com/unkownblunders/bugs"
+)
 
-	buglist := bugs.Get()
+func list() {
 
-	println("Header")
+	buglist, err := bugs.Get()
+
+	if err != nil {
+		println("Failed to get bugs", err)
+		return
+	}
+
+	println("# Title")
 
 	for bug, value := range buglist {
 		println(bug, value)
 	}
+
+}
+
+func main() {
+
+	if len(os.Args) >= 2 {
+		for _, title := range os.Args[1:] {
+			bugs.Create(title)
+		}
+
+	}
+
+	list()
 
 }
