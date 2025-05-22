@@ -18,5 +18,29 @@ func Get() ([]string, error) {
 }
 
 func Create(title string) {
-	//bugs = append(bugs, title)
+	buglist, err := Get()
+
+	if err != nil {
+		println("Failed to get bugs", err)
+		return
+	}
+
+	buglist = append(buglist, title)
+
+	// our get function returns a slice of strings
+	// Need to convert to one long string, then convert to byte slice
+	bugString := strings.Join(buglist, "\n")
+	var bugBytes = []byte(bugString)
+
+	// What's the standard when using multiple error handling functions?
+	// Should I just write over the existing err, or create a new var like err2?
+	// err2 := os.WriteFile("bugs.txt", bugBytes, 0777)
+	// if err2 != nil {
+	// 	println("Failed to write bugs to file", err)
+	// }
+	// or
+	err = os.WriteFile("bugs.txt", bugBytes, 0777)
+	if err != nil {
+		println("Failed to write bugs to file", err)
+	}
 }
