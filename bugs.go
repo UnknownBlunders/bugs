@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func Get() ([]string, error) {
-	file, err := os.ReadFile("bugs.txt")
+func Get(filename string) ([]string, error) {
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -15,14 +15,15 @@ func Get() ([]string, error) {
 	bugs := strings.Split(bugString, "\n")
 
 	return bugs, nil
+	// return []string{"1", "2", "3"}, nil
 }
 
-func Create(title string) {
-	buglist, err := Get()
+func Create(filename string, title string) error {
+
+	buglist, err := Get(filename)
 
 	if err != nil {
-		println("Failed to get bugs", err)
-		return
+		return err
 	}
 
 	buglist = append(buglist, title)
@@ -32,15 +33,10 @@ func Create(title string) {
 	bugString := strings.Join(buglist, "\n")
 	var bugBytes = []byte(bugString)
 
-	// What's the standard when using multiple error handling functions?
-	// Should I just write over the existing err, or create a new var like err2?
-	// err2 := os.WriteFile("bugs.txt", bugBytes, 0777)
-	// if err2 != nil {
-	// 	println("Failed to write bugs to file", err)
-	// }
-	// or
-	err = os.WriteFile("bugs.txt", bugBytes, 0777)
+	err = os.WriteFile(filename, bugBytes, 0777)
 	if err != nil {
-		println("Failed to write bugs to file", err)
+		return err
 	}
+
+	return nil
 }

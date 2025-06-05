@@ -8,7 +8,7 @@ import (
 
 func list() {
 
-	buglist, err := bugs.Get()
+	buglist, err := bugs.Get("bugs.txt")
 
 	if err != nil {
 		println("Failed to get bugs", err)
@@ -27,7 +27,7 @@ func main() {
 
 	if len(os.Args) >= 2 {
 		for _, title := range os.Args[1:] {
-			bugs.Create(title)
+			bugs.Create("bugs.txt", title)
 		}
 
 	}
