@@ -2,3 +2,4 @@ Adding bugs is broken
 new bug!
 Another bug :(
 yet Another bug :(
+Can't have more attributes than just name

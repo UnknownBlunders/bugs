@@ -1,6 +1,7 @@
 package bugs
 
 import (
+	"errors"
 	"os"
 	"strings"
 )
@@ -22,7 +23,9 @@ func Create(filename string, title string) error {
 
 	buglist, err := Get(filename)
 
-	if err != nil {
+	// Returns the error only if one exists
+	// and the error isn't just that the file doesn't exist
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
 
