@@ -15,10 +15,11 @@ func list() {
 		return
 	}
 
-	println("# Title")
+	println("# Status Title")
+	println("=================")
 
-	for bug, value := range buglist {
-		println(bug, value)
+	for index, value := range buglist {
+		println(index, value.Status, "	", value.Title)
 	}
 
 }
@@ -27,11 +28,9 @@ func main() {
 
 	if len(os.Args) >= 2 {
 		for _, title := range os.Args[1:] {
-			bugs.Create("bugs.txt", title)
+			bugs.Create("bugs.txt", title, "Open")
 		}
-
 	}
-
 	list()
 
 }

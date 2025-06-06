@@ -1,3 +1,1 @@
-Adding bugs is broken
-new bug!
-Another bug :(
+[{"title":"Adding bugs is broken","status":"Closed"},{"title":"new bug!","status":"Open"},{"title":"Another bug :(","status":"Open"}]

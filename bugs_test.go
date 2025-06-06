@@ -8,10 +8,23 @@ import (
 
 // The get function should return all the bugs from our persistent storage
 func TestGetBugs(t *testing.T) {
-	var bugList []string
+	var bugList []bugs.Bug
 	bugList, err := bugs.Get("testdata/test-bugs.txt")
 
-	want := []string{"Adding bugs is broken", "new bug!", "Another bug :("}
+	want := []bugs.Bug{
+		{
+			Title:  "Adding bugs is broken",
+			Status: "Closed",
+		},
+		{
+			Title:  "new bug!",
+			Status: "Open",
+		},
+		{
+			Title:  "Another bug :(",
+			Status: "Open",
+		},
+	}
 
 	if err != nil {
 		// ends the test
@@ -23,11 +36,11 @@ func TestGetBugs(t *testing.T) {
 }
 
 func TestCreateBugs(t *testing.T) {
-	newBug := "Create bug test"
+	newBug := bugs.Bug{Title: "Creating Bugs is broken", Status: "Closed"}
 
 	filename := t.TempDir() + "/buglist.txt"
 
-	err := bugs.Create(filename, newBug)
+	err := bugs.Create(filename, newBug.Title, newBug.Status)
 
 	if err != nil {
 		// ends the test
@@ -41,11 +54,11 @@ func TestCreateBugs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assertBugList(t, bugList, []string{newBug})
+	assertBugList(t, bugList, []bugs.Bug{newBug})
 }
 
 // Doesn't start with "Test", therefore not a test
-func assertBugList(t *testing.T, bugList []string, expectedBugs []string) {
+func assertBugList(t *testing.T, bugList []bugs.Bug, expectedBugs []bugs.Bug) {
 
 	for index, bug := range bugList {
 		if bug != expectedBugs[index] {

@@ -1,42 +1,56 @@
 package bugs
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
-	"strings"
 )
 
-func Get(filename string) ([]string, error) {
+type Bug struct {
+	Title  string `json:"title"`
+	Status string `json:"status"`
+}
+
+func Get(filename string) ([]Bug, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
 	var bugString = string(file)
-	bugs := strings.Split(bugString, "\n")
+	var bugs []Bug
+
+	err = json.Unmarshal([]byte(bugString), &bugs)
+	if err != nil {
+		return nil, err
+	}
 
 	return bugs, nil
 	// return []string{"1", "2", "3"}, nil
 }
 
-func Create(filename string, title string) error {
+func Create(filename string, title string, status string) error {
 
 	buglist, err := Get(filename)
 
 	// Returns the error only if one exists
 	// and the error isn't just that the file doesn't exist
+	// If the file doesn't exist, we'll just create it later
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
 
-	buglist = append(buglist, title)
+	newBug := Bug{Title: title, Status: status}
 
-	// our get function returns a slice of strings
-	// Need to convert to one long string, then convert to byte slice
-	bugString := strings.Join(buglist, "\n")
-	var bugBytes = []byte(bugString)
+	buglist = append(buglist, newBug)
 
-	err = os.WriteFile(filename, bugBytes, 0777)
+	data, err := json.Marshal(buglist)
+
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filename, data, 0777)
 	if err != nil {
 		return err
 	}
