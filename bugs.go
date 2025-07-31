@@ -11,40 +11,31 @@ type Bug struct {
 	Status string `json:"status"`
 }
 
-func Get(filename string) ([]Bug, error) {
+type Buglist struct {
+	bugs []Bug
+}
+
+func Get(filename string) (*Buglist, error) {
+	var buglist Buglist
+
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
 	var bugString = string(file)
-	var bugs []Bug
 
-	err = json.Unmarshal([]byte(bugString), &bugs)
+	err = json.Unmarshal([]byte(bugString), &buglist.bugs)
 	if err != nil {
 		return nil, err
 	}
 
-	return bugs, nil
-	// return []string{"1", "2", "3"}, nil
+	return &buglist, nil
 }
 
-func Create(filename string, title string, status string) error {
+func (buglist *Buglist) Write(filename string) error {
 
-	buglist, err := Get(filename)
-
-	// Returns the error only if one exists
-	// and the error isn't just that the file doesn't exist
-	// If the file doesn't exist, we'll just create it later
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-
-	newBug := Bug{Title: title, Status: status}
-
-	buglist = append(buglist, newBug)
-
-	data, err := json.Marshal(buglist)
+	data, err := json.Marshal(buglist.bugs)
 
 	if err != nil {
 		return err
@@ -53,6 +44,41 @@ func Create(filename string, title string, status string) error {
 	err = os.WriteFile(filename, data, 0777)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (buglist *Buglist) GetBug(title string) (Bug, error) {
+
+	for _, bug := range buglist.bugs {
+		if bug.Title == title {
+			return bug, nil
+		}
+	}
+
+	return Bug{}, errors.New("bug not found")
+}
+
+func (buglist *Buglist) All() []Bug {
+	return buglist.bugs
+}
+
+func (buglist *Buglist) Create(title string, status string) {
+
+	newBug := Bug{Title: title, Status: status}
+
+	buglist.bugs = append(buglist.bugs, newBug)
+}
+
+func (buglist *Buglist) UpdateStatus(title string, status string) error {
+
+	// Get and update bug
+	for index, bug := range buglist.bugs {
+		if bug.Title == title {
+			buglist.bugs[index].Status = status
+			break
+		}
 	}
 
 	return nil
