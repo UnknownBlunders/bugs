@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/unkownblunders/bugs"
@@ -8,54 +9,68 @@ import (
 
 func list(buglist *bugs.Buglist) {
 
-	println("# Status Title")
-	println("=================")
+	fmt.Println("ID Status Title")
+	fmt.Println("=================")
 
-	for index, value := range buglist.All() {
-		println(index, value.Status, " ", value.Title)
+	for _, value := range buglist.All() {
+		fmt.Println(value.ID, value.Status, " ", value.Title)
 	}
 
 }
 
-func help() {
-	println("Commands:")
-	println("create")
-	println("list")
-	println("update")
-	println("help")
-}
-
-func main() {
-	saveFile := "bugs.txt"
+func readFile(saveFile string) (buglist *bugs.Buglist) {
 	buglist, err := bugs.Get(saveFile)
 
 	if err != nil {
-		println("Failed to get bugs", err)
-		return
+		fmt.Println("Failed to get bugs", err)
+		os.Exit(1)
 	}
+
+	return buglist
+}
+
+func help() {
+	fmt.Println("Commands:")
+	fmt.Println("init")
+	fmt.Println("create")
+	fmt.Println("list")
+	fmt.Println("update")
+	fmt.Println("help")
+}
+
+func main() {
+	saveFile := ".buglist.json"
 
 	if len(os.Args) >= 2 {
 
 		switch os.Args[1] {
 		case "create":
 			for _, title := range os.Args[2:] {
-				buglist.Create(title, "Open")
+				buglist := readFile(saveFile)
+				buglist.CreateBug(title)
 				buglist.Write(saveFile)
 			}
 		case "update":
-			err := buglist.UpdateStatus(os.Args[2], os.Args[3])
+			buglist := readFile(saveFile)
+			err := buglist.UpdateBugStatus(os.Args[2], os.Args[3])
 			if err != nil {
-				println("no such bug", err)
+				fmt.Println("no such bug", err)
 			} else {
 				buglist.Write(saveFile)
 			}
 		case "help":
 			help()
 		case "list":
+			buglist := readFile(saveFile)
 			list(buglist)
+		case "init":
+			err := bugs.InitializeSaveFile(saveFile)
+			if err != nil {
+				fmt.Println("Error creating save file", err)
+			}
 		default:
-			println("Unknown command: ", os.Args[1])
-			println("")
+			fmt.Println("Unknown command: ", os.Args[1])
+			fmt.Println("")
 			help()
 		}
 

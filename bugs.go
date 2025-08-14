@@ -4,20 +4,31 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strconv"
+)
+
+const (
+	StatusClosed = "Closed"
+	StatusOpen   = "Open"
 )
 
 type Bug struct {
+	ID     string `json:"id"`
 	Title  string `json:"title"`
 	Status string `json:"status"`
 }
 
 type Buglist struct {
-	bugs []Bug
+	bugs   []Bug
+	nextID int
+}
+
+type saveBugList struct {
+	Bugs   []Bug
+	NextID int
 }
 
 func Get(filename string) (*Buglist, error) {
-	var buglist Buglist
-
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -25,17 +36,25 @@ func Get(filename string) (*Buglist, error) {
 
 	var bugString = string(file)
 
-	err = json.Unmarshal([]byte(bugString), &buglist.bugs)
+	var savedBugList saveBugList
+	err = json.Unmarshal([]byte(bugString), &savedBugList)
 	if err != nil {
 		return nil, err
 	}
 
-	return &buglist, nil
+	return &Buglist{
+			bugs:   savedBugList.Bugs,
+			nextID: savedBugList.NextID,
+		},
+		nil
 }
 
 func (buglist *Buglist) Write(filename string) error {
 
-	data, err := json.Marshal(buglist.bugs)
+	data, err := json.Marshal(saveBugList{
+		Bugs:   buglist.bugs,
+		NextID: buglist.nextID,
+	})
 
 	if err != nil {
 		return err
@@ -49,10 +68,10 @@ func (buglist *Buglist) Write(filename string) error {
 	return nil
 }
 
-func (buglist *Buglist) GetBug(title string) (Bug, error) {
+func (buglist *Buglist) GetBug(id string) (Bug, error) {
 
 	for _, bug := range buglist.bugs {
-		if bug.Title == title {
+		if bug.ID == id {
 			return bug, nil
 		}
 	}
@@ -64,22 +83,43 @@ func (buglist *Buglist) All() []Bug {
 	return buglist.bugs
 }
 
-func (buglist *Buglist) Create(title string, status string) {
+func (buglist *Buglist) CreateBug(title string) (id string) {
+	id = strconv.Itoa(buglist.nextID)
 
-	newBug := Bug{Title: title, Status: status}
+	buglist.nextID++
+	newBug := Bug{ID: id, Title: title, Status: "Open"}
 
 	buglist.bugs = append(buglist.bugs, newBug)
+
+	return id
 }
 
-func (buglist *Buglist) UpdateStatus(title string, status string) error {
+func (buglist *Buglist) UpdateBugStatus(id string, status string) error {
 
 	// Get and update bug
 	for index, bug := range buglist.bugs {
-		if bug.Title == title {
+		if bug.ID == id {
 			buglist.bugs[index].Status = status
 			break
 		}
 	}
 
 	return nil
+}
+
+func InitializeSaveFile(filename string) error {
+	var buglist Buglist
+
+	// check if the file exists, this function will not overwrite existing files
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		err = buglist.Write(filename)
+
+		if err != nil {
+			return err
+		}
+		return nil
+	} else {
+		return errors.New("file already exists, this function will not write over existing files")
+	}
 }

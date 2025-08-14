@@ -56,10 +56,11 @@ func TestGetBugFindsBugByTitle(t *testing.T) {
 	buglist, _ := bugs.Get("testdata/test-bugs.txt")
 
 	want := bugs.Bug{
+		ID:     "0",
 		Title:  "Adding bugs is broken",
-		Status: "Closed",
+		Status: bugs.StatusClosed,
 	}
-	bug, err := buglist.GetBug("Adding bugs is broken")
+	bug, err := buglist.GetBug("0")
 
 	if err != nil {
 		// ends the test
@@ -78,7 +79,7 @@ func TestGetBugFindsBugByTitle(t *testing.T) {
 func TestGetBugErrorsIfBugNotFound(t *testing.T) {
 	buglist, _ := bugs.Get("testdata/test-bugs.txt")
 
-	_, err := buglist.GetBug("nonexistant bug")
+	_, err := buglist.GetBug("nonexistant id")
 
 	if err == nil {
 		t.Error("Want error for nonexistant bug, got nil")
@@ -86,35 +87,87 @@ func TestGetBugErrorsIfBugNotFound(t *testing.T) {
 }
 
 func TestCreateBugs(t *testing.T) {
-	// If the file is empty:
 	var newList bugs.Buglist
-	newBug := bugs.Bug{Title: "Creating Bugs is broken", Status: "Closed"}
-
-	newList.Create(newBug.Title, newBug.Status)
-
-	if !slices.Equal(newList.All(), []bugs.Bug{newBug}) {
-		t.Errorf("Found mismatch: got %#v, expected %#v", newList.All(), []bugs.Bug{newBug})
-	}
-
-}
-
-func TestUpdateStatusBugs(t *testing.T) {
-
-	buglist, _ := bugs.Get("testdata/test-bugs.txt")
-
-	bugUpdate := bugs.Bug{"new bug!", "Closed"}
-
-	err := buglist.UpdateStatus(bugUpdate.Title, bugUpdate.Status)
+	id := newList.CreateBug("BugA")
+	bugA, err := newList.GetBug(id)
 
 	if err != nil {
 		// ends the test
 		t.Fatal(err)
 	}
 
-	updatedBug, _ := buglist.GetBug("new bug!")
+	if bugA.Title != "BugA" {
+		t.Errorf("Found mismatch: wrong title")
+	}
 
-	if updatedBug.Status != bugUpdate.Status {
-		t.Errorf("Status update failed. got %#v, expected %#v", updatedBug.Status, bugUpdate.Status)
+	id = newList.CreateBug("BugB")
+	bugB, err := newList.GetBug(id)
+
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+
+	if bugB.Title != "BugB" {
+		t.Errorf("Found mismatch: wrong title")
+	}
+
+}
+
+func TestUpdateStatusBugs(t *testing.T) {
+	var newList bugs.Buglist
+
+	id := newList.CreateBug("test bug")
+
+	err := newList.UpdateBugStatus(id, bugs.StatusClosed)
+
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+
+	updatedBug, err := newList.GetBug(id)
+
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+
+	if updatedBug.Status != bugs.StatusClosed {
+		t.Errorf("Bug status was wrong: %q", updatedBug.Status)
+	}
+}
+
+func TestInitializeSaveFile(t *testing.T) {
+	newfile := t.TempDir() + "/buglist.json"
+
+	err := bugs.InitializeSaveFile(newfile)
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+
+	_, err = bugs.Get(newfile)
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+}
+
+func TestInitializeSaveFileDoesntOverwriteFiles(t *testing.T) {
+	newfile := t.TempDir() + "/buglist.json"
+
+	err := bugs.InitializeSaveFile(newfile)
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+
+	// We already created a file at this location, if we create another it should error
+	err = bugs.InitializeSaveFile(newfile)
+	if err.Error() != "file already exists, this function will not write over existing files" {
+		// ends the test
+		t.Fatal(err)
 	}
 }
 
@@ -122,16 +175,19 @@ func TestUpdateStatusBugs(t *testing.T) {
 func assertTestBugList(t *testing.T, buglist *bugs.Buglist) {
 	want := []bugs.Bug{
 		{
+			ID:     "0",
 			Title:  "Adding bugs is broken",
-			Status: "Closed",
+			Status: bugs.StatusClosed,
 		},
 		{
+			ID:     "1",
 			Title:  "new bug!",
-			Status: "Open",
+			Status: bugs.StatusOpen,
 		},
 		{
+			ID:     "2",
 			Title:  "Another bug :(",
-			Status: "Open",
+			Status: bugs.StatusOpen,
 		},
 	}
 

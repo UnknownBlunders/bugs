@@ -1,1 +1,1 @@
-[{"title":"Adding bugs is broken","status":"Closed"},{"title":"new bug!","status":"Open"},{"title":"Another bug :(","status":"Open"}]
+{"Bugs":[{"id":"0","title":"Adding bugs is broken","status":"Closed"},{"id":"1","title":"new bug!","status":"Open"},{"id":"2","title":"Another bug :(","status":"Open"}],"NextID":3}
