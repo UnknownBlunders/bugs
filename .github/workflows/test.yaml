@@ -1,0 +1,19 @@
+name: Test Code and with test coverage report
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - README.md
+      - .github*
+      - .gitignore
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Test the code
+        run: go test -cover

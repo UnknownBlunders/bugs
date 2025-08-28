@@ -18,62 +18,61 @@ func list(buglist *bugs.Buglist) {
 
 }
 
-func readFile(saveFile string) (buglist *bugs.Buglist) {
-	buglist, err := bugs.Get(saveFile)
-
-	if err != nil {
-		fmt.Println("Failed to get bugs", err)
-		os.Exit(1)
-	}
-
-	return buglist
-}
-
 func help() {
-	fmt.Println("Commands:")
-	fmt.Println("init")
-	fmt.Println("create")
-	fmt.Println("list")
-	fmt.Println("update")
-	fmt.Println("help")
+	multilineHelpString := `
+	Commands:
+	list
+	create
+	update
+	help
+
+	Usage Info:
+
+	List will list the ID, Title, and Status of all your bugs:
+	Example:
+	$ bugs list
+
+	Create will create an open bug with whatever title you provide
+	Examples:
+	$ bugs create <title of bug to create>
+	$ bugs create new bug!
+
+	Update will update the status of the bug with the ID you provided
+	Examples:
+	$ bugs update <id of bug to update> <new status>
+	$ bugs update 2 Closed
+
+	Help will print this help message
+	Examples:
+	$ bugs help
+	`
+	fmt.Println(multilineHelpString)
 }
 
 func main() {
 	saveFile := ".buglist.json"
+	buglist, err := bugs.OpenBugList(saveFile)
+	if err != nil {
+		fmt.Println("Failed to open buglist", err)
+	}
 
-	if len(os.Args) >= 2 {
+	action := bugs.ParseArgs(os.Args)
 
-		switch os.Args[1] {
-		case "create":
-			for _, title := range os.Args[2:] {
-				buglist := readFile(saveFile)
-				buglist.CreateBug(title)
-				buglist.Write(saveFile)
-			}
-		case "update":
-			buglist := readFile(saveFile)
-			err := buglist.UpdateBugStatus(os.Args[2], os.Args[3])
-			if err != nil {
-				fmt.Println("no such bug", err)
-			} else {
-				buglist.Write(saveFile)
-			}
-		case "help":
-			help()
-		case "list":
-			buglist := readFile(saveFile)
-			list(buglist)
-		case "init":
-			err := bugs.InitializeSaveFile(saveFile)
-			if err != nil {
-				fmt.Println("Error creating save file", err)
-			}
-		default:
-			fmt.Println("Unknown command: ", os.Args[1])
-			fmt.Println("")
-			help()
+	switch action.Verb {
+	case bugs.VerbCreate:
+		buglist.CreateBug(action.BugTitle)
+		buglist.Write(saveFile)
+	case "update":
+		err := buglist.UpdateBugStatus(action.BugID, action.BugStatus)
+		if err != nil {
+			fmt.Println("no such bug", err)
+		} else {
+			buglist.Write(saveFile)
 		}
-
+	case "help":
+		help()
+	case "list":
+		list(buglist)
 	}
 
 }

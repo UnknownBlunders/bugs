@@ -1,34 +1,13 @@
 # bug-tracker
 
+## Installation:
+
+Download the latest version from the [releases page](https://github.com/UnknownBlunders/bug-tracker/releases)
+
 ## Usage:
 
-To get your list of bugs:
+The help command will show you full usage:
 
 ``` bash
-$ go run cmd/main.go
-```
-
-To add a bug to your list titled "Can't delete bugs":
-
-``` bash
-$ go run cmd/main.go "Can't delete bugs"
-```
-
-Output examples:
-
-``` bash
-$ go run cmd/main.go
-# Status Title
-=================
-0 Open   tests broken
-1 Open   Can't update status of bugs
-2 Open   Can't delete bugs
-```
-
-Future Command list:
-
-```
-bt list
-bt help
-bt #(alias bt help)
+bugs help
 ```

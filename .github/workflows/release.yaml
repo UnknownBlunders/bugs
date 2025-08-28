@@ -1,0 +1,22 @@
+name: Test Code and with test coverage report
+
+on:
+  push:
+    tags: ["*"]
+
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: build
+        run: go build -o bugs cmd/main.go
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bugs

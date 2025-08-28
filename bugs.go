@@ -28,16 +28,24 @@ type saveBugList struct {
 	NextID int
 }
 
-func Get(filename string) (*Buglist, error) {
-	file, err := os.ReadFile(filename)
+func NewBuglist() *Buglist {
+	return &Buglist{
+		bugs:   []Bug{},
+		nextID: 0,
+	}
+}
+
+func OpenBugList(filename string) (*Buglist, error) {
+	data, err := os.ReadFile(filename)
+	if errors.Is(err, os.ErrNotExist) {
+		return NewBuglist(), nil
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	var bugString = string(file)
-
 	var savedBugList saveBugList
-	err = json.Unmarshal([]byte(bugString), &savedBugList)
+	err = json.Unmarshal(data, &savedBugList)
 	if err != nil {
 		return nil, err
 	}
@@ -105,21 +113,4 @@ func (buglist *Buglist) UpdateBugStatus(id string, status string) error {
 	}
 
 	return nil
-}
-
-func InitializeSaveFile(filename string) error {
-	var buglist Buglist
-
-	// check if the file exists, this function will not overwrite existing files
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		err = buglist.Write(filename)
-
-		if err != nil {
-			return err
-		}
-		return nil
-	} else {
-		return errors.New("file already exists, this function will not write over existing files")
-	}
 }

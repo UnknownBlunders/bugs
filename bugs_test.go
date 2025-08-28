@@ -8,8 +8,8 @@ import (
 )
 
 // The get function should return all the bugs from our persistent storage
-func TestGetBugs(t *testing.T) {
-	bugList, err := bugs.Get("testdata/test-bugs.txt")
+func TestOpenBugListReadsBuglistFromExistingFile(t *testing.T) {
+	bugList, err := bugs.OpenBugList("testdata/test-bugs.txt")
 
 	if err != nil {
 		// ends the test
@@ -20,12 +20,29 @@ func TestGetBugs(t *testing.T) {
 
 }
 
+func TestOpenBugListCreatesNewEmptyBuglistWhenFileIsMissing(t *testing.T) {
+	saveFilePath := t.TempDir() + "/buglist.json"
+
+	buglist, err := bugs.OpenBugList(saveFilePath)
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+
+	// Check that newly created buglist is empty
+	if !slices.Equal(buglist.All(), []bugs.Bug{}) {
+		// ends the test
+		t.Fatal(err)
+	}
+
+}
+
 func TestWriteBugs(t *testing.T) {
 	// Get the testdata buglist, write it to a new location
 	// Get the buglist from the new location
 	// assert that it should be an identical copy
 
-	buglist, err := bugs.Get("testdata/test-bugs.txt")
+	buglist, err := bugs.OpenBugList("testdata/test-bugs.txt")
 
 	if err != nil {
 		// ends the test
@@ -41,7 +58,7 @@ func TestWriteBugs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	copyBugList, err := bugs.Get(newfile)
+	copyBugList, err := bugs.OpenBugList(newfile)
 
 	if err != nil {
 		// ends the test
@@ -53,7 +70,7 @@ func TestWriteBugs(t *testing.T) {
 }
 
 func TestGetBugFindsBugByTitle(t *testing.T) {
-	buglist, _ := bugs.Get("testdata/test-bugs.txt")
+	buglist, _ := bugs.OpenBugList("testdata/test-bugs.txt")
 
 	want := bugs.Bug{
 		ID:     "0",
@@ -77,7 +94,7 @@ func TestGetBugFindsBugByTitle(t *testing.T) {
 }
 
 func TestGetBugErrorsIfBugNotFound(t *testing.T) {
-	buglist, _ := bugs.Get("testdata/test-bugs.txt")
+	buglist, _ := bugs.OpenBugList("testdata/test-bugs.txt")
 
 	_, err := buglist.GetBug("nonexistant id")
 
@@ -135,39 +152,6 @@ func TestUpdateStatusBugs(t *testing.T) {
 
 	if updatedBug.Status != bugs.StatusClosed {
 		t.Errorf("Bug status was wrong: %q", updatedBug.Status)
-	}
-}
-
-func TestInitializeSaveFile(t *testing.T) {
-	newfile := t.TempDir() + "/buglist.json"
-
-	err := bugs.InitializeSaveFile(newfile)
-	if err != nil {
-		// ends the test
-		t.Fatal(err)
-	}
-
-	_, err = bugs.Get(newfile)
-	if err != nil {
-		// ends the test
-		t.Fatal(err)
-	}
-}
-
-func TestInitializeSaveFileDoesntOverwriteFiles(t *testing.T) {
-	newfile := t.TempDir() + "/buglist.json"
-
-	err := bugs.InitializeSaveFile(newfile)
-	if err != nil {
-		// ends the test
-		t.Fatal(err)
-	}
-
-	// We already created a file at this location, if we create another it should error
-	err = bugs.InitializeSaveFile(newfile)
-	if err.Error() != "file already exists, this function will not write over existing files" {
-		// ends the test
-		t.Fatal(err)
 	}
 }
 
