@@ -4,6 +4,14 @@ A simple go based bug tracker for the cli
 
 ## Installation:
 
+### Via Go Install:
+
+``` bash
+go install github.com/unknownblunders/bugs/cmd/bugs@latest
+```
+
+### From Binary:
+
 Download the latest binary from the [releases page](https://github.com/UnknownBlunders/bugs/releases).
 
 Install it to your preferred location:

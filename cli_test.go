@@ -1,7 +1,6 @@
 package bugs_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/rogpeppe/go-internal/testscript"
@@ -10,12 +9,8 @@ import (
 
 func TestMain(m *testing.M) {
 	testscript.Main(m, map[string]func(){
-		"bugs": runMain,
+		"bugs": bugs.Main,
 	})
-}
-
-func runMain() {
-	os.Exit(bugs.Main())
 }
 
 func Test(t *testing.T) {

@@ -60,12 +60,12 @@ func ParseArgs(args []string) Action {
 	}
 }
 
-func Main() int {
+func Main() {
 	saveFile := ".buglist.json"
 	buglist, err := OpenBugList(saveFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to open buglist, %v", err)
-		return 1
+		os.Exit(1)
 	}
 
 	action := ParseArgs(os.Args)
@@ -77,19 +77,19 @@ func Main() int {
 		err := buglist.Write(saveFile)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			return 1
+			os.Exit(1)
 		}
 	case VerbUpdate:
 		err := buglist.UpdateBugStatus(action.BugID, action.BugStatus)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			return 1
+			os.Exit(1)
 		}
 
 		err = buglist.Write(saveFile)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			return 1
+			os.Exit(1)
 		}
 
 	case VerbHelp:
@@ -97,8 +97,6 @@ func Main() int {
 	case VerbList:
 		list(buglist)
 	}
-
-	return 0
 
 }
 

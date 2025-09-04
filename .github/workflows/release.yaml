@@ -29,7 +29,7 @@ jobs:
 
       - name: Build
         run: |
-          go build -o bugs-${{ steps.get-name.outputs.os }}-${{ github.ref_name }} cmd/main.go
+          go build -o bugs-${{ steps.get-name.outputs.os }}-${{ github.ref_name }} cmd/bugs/main.go
 
       - name: Release
         uses: softprops/action-gh-release@v2
