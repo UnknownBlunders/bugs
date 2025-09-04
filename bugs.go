@@ -20,96 +20,76 @@ type Bug struct {
 }
 
 type Buglist struct {
-	bugs   []Bug
-	nextID int
-}
-
-type saveBugList struct {
 	Bugs   []Bug
-	NextID int
+	NextID uint64
 }
 
-func NewBuglist() *Buglist {
-	return &Buglist{
-		bugs:   []Bug{},
-		nextID: 0,
-	}
-}
-
-func OpenBugList(filename string) (*Buglist, error) {
-	data, err := os.ReadFile(filename)
+func OpenBugList(path string) (*Buglist, error) {
+	data, err := os.ReadFile(path)
 	if errors.Is(err, os.ErrNotExist) {
-		return NewBuglist(), nil
+		return &Buglist{}, nil
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	var savedBugList saveBugList
-	err = json.Unmarshal(data, &savedBugList)
+	var buglist Buglist
+	err = json.Unmarshal(data, &buglist)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Buglist{
-			bugs:   savedBugList.Bugs,
-			nextID: savedBugList.NextID,
-		},
-		nil
+	return &buglist, nil
 }
 
-func (buglist *Buglist) Write(filename string) error {
-
-	data, err := json.Marshal(saveBugList{
-		Bugs:   buglist.bugs,
-		NextID: buglist.nextID,
-	})
-
+func (buglist *Buglist) Write(path string) error {
+	data, err := json.Marshal(buglist)
 	if err != nil {
 		return err
 	}
-
 	data = append(data, byte('\n'))
-	err = os.WriteFile(filename, data, 0777)
+	err = os.WriteFile(path, data, 0o777)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (buglist *Buglist) GetBug(id string) (Bug, error) {
 
-	for _, bug := range buglist.bugs {
+	for _, bug := range buglist.Bugs {
 		if bug.ID == id {
 			return bug, nil
 		}
 	}
 
-	return Bug{}, errors.New("bug not found")
+	return Bug{}, fmt.Errorf("bug not found %q", id)
 }
 
 func (buglist *Buglist) All() []Bug {
-	return buglist.bugs
+	return buglist.Bugs
 }
 
-func (buglist *Buglist) CreateBug(title string) (id string) {
-	id = strconv.Itoa(buglist.nextID)
+func (buglist *Buglist) CreateBug(title string) (id string, err error) {
+	id = strconv.FormatUint(buglist.NextID, 10)
 
-	buglist.nextID++
+	buglist.NextID++
+	if buglist.NextID == 0 {
+		return "", errors.New("NextID must have overflowed, it's now 0")
+	}
 	newBug := Bug{ID: id, Title: title, Status: "Open"}
 
-	buglist.bugs = append(buglist.bugs, newBug)
+	buglist.Bugs = append(buglist.Bugs, newBug)
 
-	return id
+	return id, nil
 }
 
 func (buglist *Buglist) UpdateBugStatus(id string, status string) error {
 
 	// Get and update bug
-	for index, bug := range buglist.bugs {
+	for index, bug := range buglist.Bugs {
 		if bug.ID == id {
-			buglist.bugs[index].Status = status
+			buglist.Bugs[index].Status = status
 			return nil
 		}
 	}

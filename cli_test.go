@@ -14,45 +14,51 @@ func TestMain(m *testing.M) {
 }
 
 func Test(t *testing.T) {
+	t.Parallel()
 	testscript.Run(t, testscript.Params{
 		Dir: "testdata/script",
 	})
 }
 
-func TestParseArgsReturnsHelpActionWhenNoArgs(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command"})
+func TestParseArgs_ReturnsHelpActionWhenNoArgs(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{})
 
 	if action.Verb != bugs.VerbHelp {
 		t.Errorf("Wrong Action, Expected help got %q", action.Verb)
 	}
 }
 
-func TestParseArgsReturnsHelpActionWhenUnknownCommand(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command", "junk command"})
+func TestParseArgs_ReturnsHelpActionWhenUnknownCommand(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{"junk command"})
 
 	if action.Verb != bugs.VerbHelp {
 		t.Errorf("Wrong Action, Expected help got %q", action.Verb)
 	}
 }
 
-func TestParseArgsReturnsListActionWhenFirstArgIsList(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command", "list"})
+func TestParseArgs_ReturnsListActionWhenFirstArgIsList(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{"list"})
 
 	if action.Verb != bugs.VerbList {
 		t.Errorf("Wrong Action, Expected list got %q", action.Verb)
 	}
 }
 
-func TestParseArgsReturnsHelpWhenFirstArgIsCreateWithNoBugTitle(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command", "create"})
+func TestParseArgs_ReturnsHelpWhenFirstArgIsCreateWithNoBugTitle(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{"create"})
 
 	if action.Verb != bugs.VerbHelp {
 		t.Errorf("Wrong Action, Expected help got %q", action.Verb)
 	}
 }
 
-func TestParseArgsReturnsCreateActionAndBugTitleWhenFirstArgIsCreateWithTitlesFollowing(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command", "create", "new", "bug"})
+func TestParseArgs_ReturnsCreateActionAndBugTitleWhenFirstArgIsCreateWithTitlesFollowing(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{"create", "new", "bug"})
 
 	if action.Verb != bugs.VerbCreate {
 		t.Errorf("Wrong Action, Expected create got %q", action.Verb)
@@ -63,24 +69,27 @@ func TestParseArgsReturnsCreateActionAndBugTitleWhenFirstArgIsCreateWithTitlesFo
 	}
 }
 
-func TestParseArgsReturnsHelpWhenFirstArgIsUpdateWithNoBugIdOrStatus(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command", "update"})
+func TestParseArgs_ReturnsHelpWhenFirstArgIsUpdateWithNoBugIdOrStatus(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{"update"})
 
 	if action.Verb != bugs.VerbHelp {
 		t.Errorf("Wrong Action, Expected help got %q", action.Verb)
 	}
 }
 
-func TestParseArgsReturnsHelpWhenFirstArgIsUpdateAndThereAreAdditionalArgsAfterOurIdAndStatus(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command", "update", "1", "Closed", "extra-arg"})
+func TestParseArgs_ReturnsHelpWhenFirstArgIsUpdateAndThereAreAdditionalArgsAfterOurIdAndStatus(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{"update", "1", "Closed", "extra-arg"})
 
 	if action.Verb != bugs.VerbHelp {
 		t.Errorf("Wrong Action, Expected help got %q", action.Verb)
 	}
 }
 
-func TestParseArgsReturnsUpdateWhenFirstArgIsUpdateAndThereIsAnIdAndAStatus(t *testing.T) {
-	action := bugs.ParseArgs([]string{"dummy command", "update", "1", "Closed"})
+func TestParseArgs_ReturnsUpdateWhenFirstArgIsUpdateAndThereIsAnIdAndAStatus(t *testing.T) {
+	t.Parallel()
+	action := bugs.ParseArgs([]string{"update", "1", "Closed"})
 
 	if action.Verb != bugs.VerbUpdate {
 		t.Errorf("Wrong Action, Expected update got %q", action.Verb)

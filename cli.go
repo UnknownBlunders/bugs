@@ -21,37 +21,37 @@ type Action struct {
 }
 
 func ParseArgs(args []string) Action {
-	if len(args) < 2 {
+	if len(args) < 1 {
 		return Action{
 			Verb: VerbHelp,
 		}
 	}
 
-	switch args[1] {
+	switch args[0] {
 	case "list", "List":
 		return Action{
 			Verb: VerbList,
 		}
 	case "create", "Create":
-		if len(args) < 3 {
+		if len(args) < 2 {
 			return Action{
 				Verb: VerbHelp,
 			}
 		}
 		return Action{
 			Verb:     VerbCreate,
-			BugTitle: strings.Join(args[2:], " "),
+			BugTitle: strings.Join(args[1:], " "),
 		}
 	case "update", "Update":
-		if len(args) != 4 {
+		if len(args) != 3 {
 			return Action{
 				Verb: VerbHelp,
 			}
 		}
 		return Action{
 			Verb:      VerbUpdate,
-			BugID:     args[2],
-			BugStatus: args[3],
+			BugID:     args[1],
+			BugStatus: args[2],
 		}
 	default:
 		return Action{
@@ -68,13 +68,18 @@ func Main() {
 		os.Exit(1)
 	}
 
-	action := ParseArgs(os.Args)
+	// First arg is just the binary path. ParseArgs shouldn't care about that
+	action := ParseArgs(os.Args[1:])
 
 	switch action.Verb {
 	case VerbCreate:
-		buglist.CreateBug(action.BugTitle)
+		_, err := buglist.CreateBug(action.BugTitle)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 
-		err := buglist.Write(saveFile)
+		err = buglist.Write(saveFile)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

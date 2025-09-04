@@ -1,14 +1,15 @@
 package bugs_test
 
 import (
+	"math"
 	"slices"
 	"testing"
 
 	"github.com/unknownblunders/bugs"
 )
 
-// The get function should return all the bugs from our persistent storage
-func TestOpenBugListReadsBuglistFromExistingFile(t *testing.T) {
+func TestOpenBugList_ReadsBuglistFromExistingFile(t *testing.T) {
+	t.Parallel()
 	bugList, err := bugs.OpenBugList("testdata/test-bugs.txt")
 
 	if err != nil {
@@ -20,7 +21,8 @@ func TestOpenBugListReadsBuglistFromExistingFile(t *testing.T) {
 
 }
 
-func TestOpenBugListCreatesNewEmptyBuglistWhenFileIsMissing(t *testing.T) {
+func TestOpenBugList_CreatesNewEmptyBuglistWhenBuglistFileDoesntExistYet(t *testing.T) {
+	t.Parallel()
 	saveFilePath := t.TempDir() + "/buglist.json"
 
 	buglist, err := bugs.OpenBugList(saveFilePath)
@@ -30,18 +32,19 @@ func TestOpenBugListCreatesNewEmptyBuglistWhenFileIsMissing(t *testing.T) {
 	}
 
 	// Check that newly created buglist is empty
-	if !slices.Equal(buglist.All(), []bugs.Bug{}) {
+	if len(buglist.All()) > 0 {
 		// ends the test
 		t.Fatal(err)
 	}
 
 }
 
-func TestWriteBugs(t *testing.T) {
+func TestWrite_WritesGivenBuglistToAFile(t *testing.T) {
 	// Get the testdata buglist, write it to a new location
 	// Get the buglist from the new location
 	// assert that it should be an identical copy
 
+	t.Parallel()
 	buglist, err := bugs.OpenBugList("testdata/test-bugs.txt")
 
 	if err != nil {
@@ -69,8 +72,13 @@ func TestWriteBugs(t *testing.T) {
 
 }
 
-func TestGetBugFindsBugByTitle(t *testing.T) {
-	buglist, _ := bugs.OpenBugList("testdata/test-bugs.txt")
+func TestGetBug_FindsBugByTitle(t *testing.T) {
+	t.Parallel()
+	buglist, err := bugs.OpenBugList("testdata/test-bugs.txt")
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
 
 	want := bugs.Bug{
 		ID:     "0",
@@ -93,19 +101,29 @@ func TestGetBugFindsBugByTitle(t *testing.T) {
 
 }
 
-func TestGetBugErrorsIfBugNotFound(t *testing.T) {
-	buglist, _ := bugs.OpenBugList("testdata/test-bugs.txt")
+func TestGetBug_ErrorsIfBugNotFound(t *testing.T) {
+	t.Parallel()
+	buglist, err := bugs.OpenBugList("testdata/test-bugs.txt")
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
 
-	_, err := buglist.GetBug("nonexistant id")
+	_, err = buglist.GetBug("nonexistant id")
 
 	if err == nil {
 		t.Error("Want error for nonexistant bug, got nil")
 	}
 }
 
-func TestCreateBugs(t *testing.T) {
+func TestCreateBug_AddsGivenBugToGivenBuglist(t *testing.T) {
+	t.Parallel()
 	var newList bugs.Buglist
-	id := newList.CreateBug("BugA")
+	id, err := newList.CreateBug("BugA")
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
 	bugA, err := newList.GetBug(id)
 
 	if err != nil {
@@ -117,7 +135,12 @@ func TestCreateBugs(t *testing.T) {
 		t.Errorf("Found mismatch: wrong title")
 	}
 
-	id = newList.CreateBug("BugB")
+	id, err = newList.CreateBug("BugB")
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
+
 	bugB, err := newList.GetBug(id)
 
 	if err != nil {
@@ -131,28 +154,42 @@ func TestCreateBugs(t *testing.T) {
 
 }
 
-func TestUpdateStatusBugs(t *testing.T) {
+func TestUpdateBugStatus_UpdatesStatusOfGivenBugByIDToGivenBugStatusString(t *testing.T) {
+	t.Parallel()
 	var newList bugs.Buglist
-
-	id := newList.CreateBug("test bug")
-
-	err := newList.UpdateBugStatus(id, bugs.StatusClosed)
-
+	id, err := newList.CreateBug("test bug")
 	if err != nil {
 		// ends the test
 		t.Fatal(err)
 	}
-
+	err = newList.UpdateBugStatus(id, bugs.StatusClosed)
+	if err != nil {
+		// ends the test
+		t.Fatal(err)
+	}
 	updatedBug, err := newList.GetBug(id)
-
 	if err != nil {
 		// ends the test
 		t.Fatal(err)
 	}
-
 	if updatedBug.Status != bugs.StatusClosed {
 		t.Errorf("Bug status was wrong: %q", updatedBug.Status)
 	}
+}
+
+func TestCreateBug_ErrorsIfNextIDWouldOverflowMaxintIfIncremented(t *testing.T) {
+	t.Parallel()
+	buglist := bugs.Buglist{
+		NextID: math.MaxUint64,
+	}
+	t.Logf("NextID: %d", buglist.NextID)
+	_, err := buglist.CreateBug("test bug")
+	t.Logf("NextID: %d", buglist.NextID)
+
+	if err == nil {
+		t.Error("Want error for overflowing nextID, got nil")
+	}
+
 }
 
 // Doesn't start with "Test", therefore not a test
