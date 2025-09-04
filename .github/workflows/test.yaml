@@ -3,6 +3,7 @@ name: Test Code and with test coverage report
 on:
   workflow_dispatch:
   push:
+    branches: ["main"]
     paths-ignore:
       - README.md
       - .github*
