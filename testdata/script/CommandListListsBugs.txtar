@@ -1,0 +1,11 @@
+exec bugs list
+cmp stdout golden.txt
+
+-- golden.txt --
+ID Status Title
+=================
+0 Closed   Adding bugs is broken
+1 Open   new bug!
+2 Open   Another bug :(
+-- .buglist.json --
+{"Bugs":[{"id":"0","title":"Adding bugs is broken","status":"Closed"},{"id":"1","title":"new bug!","status":"Open"},{"id":"2","title":"Another bug :(","status":"Open"}],"NextID":3}

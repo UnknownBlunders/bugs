@@ -1,4 +1,4 @@
-name: Test Code and with test coverage report
+name: Build Bugs package and create release
 
 on:
   push:
@@ -7,16 +7,25 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['stable']
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v5
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
       
       - name: build
-        run: go build -o bugs cmd/main.go
+        run: |
+          OS=${{ matrix.os }}
+          go build -o bugs-${OS%-*}-${{ github.ref }} cmd/main.go
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: bugs
+          files: bugs-${OS%-*}-${{ github.ref }}

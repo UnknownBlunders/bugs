@@ -3,6 +3,7 @@ package bugs
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -68,6 +69,7 @@ func (buglist *Buglist) Write(filename string) error {
 		return err
 	}
 
+	data = append(data, byte('\n'))
 	err = os.WriteFile(filename, data, 0777)
 	if err != nil {
 		return err
@@ -108,9 +110,9 @@ func (buglist *Buglist) UpdateBugStatus(id string, status string) error {
 	for index, bug := range buglist.bugs {
 		if bug.ID == id {
 			buglist.bugs[index].Status = status
-			break
+			return nil
 		}
 	}
 
-	return nil
+	return fmt.Errorf("Bug not found: %q", id)
 }

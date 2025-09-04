@@ -1,0 +1,5 @@
+exec bugs create Test bug
+cmp .buglist.json golden.json
+
+-- golden.json --
+{"Bugs":[{"id":"0","title":"Test bug","status":"Open"}],"NextID":1}

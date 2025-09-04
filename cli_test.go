@@ -1,10 +1,28 @@
 package bugs_test
 
 import (
+	"os"
 	"testing"
 
+	"github.com/rogpeppe/go-internal/testscript"
 	"github.com/unkownblunders/bugs"
 )
+
+func TestMain(m *testing.M) {
+	testscript.Main(m, map[string]func(){
+		"bugs": runMain,
+	})
+}
+
+func runMain() {
+	os.Exit(bugs.Main())
+}
+
+func Test(t *testing.T) {
+	testscript.Run(t, testscript.Params{
+		Dir: "testdata/script",
+	})
+}
 
 func TestParseArgsReturnsHelpActionWhenNoArgs(t *testing.T) {
 	action := bugs.ParseArgs([]string{"dummy command"})

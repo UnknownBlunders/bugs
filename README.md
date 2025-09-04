@@ -1,8 +1,16 @@
-# bug-tracker
+# Bugs
+
+A simple go based bug tracker for the cli
 
 ## Installation:
 
-Download the latest version from the [releases page](https://github.com/UnknownBlunders/bug-tracker/releases)
+Download the latest binary from the [releases page](https://github.com/UnknownBlunders/bug-tracker/releases).
+
+Install it to your preferred location:
+
+``` bash
+sudo install bugs /usr/local/bin
+```
 
 ## Usage:
 

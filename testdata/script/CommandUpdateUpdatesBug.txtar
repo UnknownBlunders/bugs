@@ -1,0 +1,7 @@
+exec bugs update 1 Closed
+cmp .buglist.json golden.txt
+
+-- golden.txt --
+{"Bugs":[{"id":"0","title":"Adding bugs is broken","status":"Closed"},{"id":"1","title":"new bug!","status":"Closed"},{"id":"2","title":"Another bug :(","status":"Open"}],"NextID":3}
+-- .buglist.json --
+{"Bugs":[{"id":"0","title":"Adding bugs is broken","status":"Closed"},{"id":"1","title":"new bug!","status":"Open"},{"id":"2","title":"Another bug :(","status":"Open"}],"NextID":3}

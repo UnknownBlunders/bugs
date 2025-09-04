@@ -1,0 +1,2 @@
+exec bugs help
+stdout 'Usage'
