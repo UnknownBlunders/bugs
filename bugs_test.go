@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/unkownblunders/bugs"
+	"github.com/unknownblunders/bugs"
 )
 
 // The get function should return all the bugs from our persistent storage

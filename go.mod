@@ -1,4 +1,4 @@
-module github.com/unkownblunders/bugs
+module github.com/unknownblunders/bugs
 
 go 1.23
 

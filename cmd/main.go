@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/unkownblunders/bugs"
+	"github.com/unknownblunders/bugs"
 )
 
 func main() {

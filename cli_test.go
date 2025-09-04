@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/rogpeppe/go-internal/testscript"
-	"github.com/unkownblunders/bugs"
+	"github.com/unknownblunders/bugs"
 )
 
 func TestMain(m *testing.M) {
