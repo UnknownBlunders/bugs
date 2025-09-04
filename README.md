@@ -9,12 +9,22 @@ Download the latest binary from the [releases page](https://github.com/UnknownBl
 Install it to your preferred location:
 
 ``` bash
-sudo install bugs-<os>-<release> /usr/local/bin/bugs
+sudo install bugs-<platform>-<release> /usr/local/bin/bugs
 ```
 Example:
 ``` bash
 sudo install bugs-ubuntu-v0.0.3 /usr/local/bin/bugs
 ```
+
+### Platforms:
+
+I release for the following platforms:
+
+| Platform OS & Architecture | Platform Name in Package |
+|----------------------------|--------------------------|
+| Linux (x86)   | ubuntu  |
+| MacOS (ARM)   | macos   |
+| Windows (x86) | windows |
 
 ## Usage:
 
