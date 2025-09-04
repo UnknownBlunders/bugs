@@ -1,3 +1,4 @@
+[windows] unix2dos golden.txt
 exec bugs update 1 Closed
 cmp .buglist.json golden.txt
 

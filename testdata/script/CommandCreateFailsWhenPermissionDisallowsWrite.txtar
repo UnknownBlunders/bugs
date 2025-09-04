@@ -1,12 +1,9 @@
-[windows] unix2dos golden.txt
-exec bugs list
-cmp stdout golden.txt
+# Skip this test on Windows. The file permission change won't work
+[windows] skip
 
--- golden.txt --
-ID Status Title
-=================
-0 Closed   Adding bugs is broken
-1 Open   new bug!
-2 Open   Another bug :(
+exec chmod 400 .buglist.json
+! exec bugs create test bug
+stderr 'permission denied'
+
 -- .buglist.json --
 {"Bugs":[{"id":"0","title":"Adding bugs is broken","status":"Closed"},{"id":"1","title":"new bug!","status":"Open"},{"id":"2","title":"Another bug :(","status":"Open"}],"NextID":3}
