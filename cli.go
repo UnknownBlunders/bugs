@@ -13,6 +13,12 @@ const (
 	VerbUpdate = "update"
 )
 
+// Action is returned by ParseArgs
+// It represents what the cli should do, and
+// the variables it needs to do it. Verbs are commands
+// in the cli like "create", "list", and "update". Some verbs
+// need fewer variables than others, but each verb can depend
+// on the variables it needs being populated by ParseArgs
 type Action struct {
 	Verb      string
 	BugTitle  string
@@ -20,6 +26,10 @@ type Action struct {
 	BugStatus string
 }
 
+// ParseArgs takes in all of the cli arguments, determines what
+// command or "verb" the user wants to perform, and populates the
+// required variables. It returns that as an Action type
+// If any of those steps goes wrong, it'll return the help message
 func ParseArgs(args []string) Action {
 	if len(args) < 1 {
 		return Action{
@@ -60,6 +70,9 @@ func ParseArgs(args []string) Action {
 	}
 }
 
+// Main runs the cli for bugs. It calls the ParseArgs function,
+// runs the actions returned by ParseArgs, catches any errors,
+// displays messages and errors and exits appropriately
 func Main() {
 	saveFile := ".buglist.json"
 	buglist, err := OpenBugList(saveFile)
@@ -105,6 +118,8 @@ func Main() {
 
 }
 
+// list displays all of the bugs in a given Buglist for the user
+// It formats it in an easy to read way
 func list(buglist *Buglist) {
 
 	fmt.Println("ID Status Title")
@@ -116,6 +131,7 @@ func list(buglist *Buglist) {
 
 }
 
+// help displays the help message
 func help() {
 	multilineHelpString := `
 	Commands:

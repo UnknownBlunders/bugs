@@ -109,10 +109,10 @@ func TestGetBug_ErrorsIfBugNotFound(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = buglist.GetBug("nonexistant id")
+	_, err = buglist.GetBug("nonexistent id")
 
 	if err == nil {
-		t.Error("Want error for nonexistant bug, got nil")
+		t.Error("Want error for nonexistent bug, got nil")
 	}
 }
 
@@ -177,7 +177,7 @@ func TestUpdateBugStatus_UpdatesStatusOfGivenBugByIDToGivenBugStatusString(t *te
 	}
 }
 
-func TestCreateBug_ErrorsIfNextIDWouldOverflowMaxintIfIncremented(t *testing.T) {
+func TestCreateBug_ErrorsIfNextIDWouldOverflowMaxIntIfIncremented(t *testing.T) {
 	t.Parallel()
 	buglist := bugs.Buglist{
 		NextID: math.MaxUint64,
